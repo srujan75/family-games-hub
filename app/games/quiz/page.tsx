@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { db, auth } from '@/lib/firebase';
 import { doc, onSnapshot, updateDoc, collection, query, where, getDocs, setDoc, serverTimestamp } from 'firebase/firestore';
@@ -11,7 +11,7 @@ import { addPoints } from '@/lib/scoring';
 import { Loader2, ArrowLeft, Trophy } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
-export default function FamilyQuiz() {
+function FamilyQuizContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const roomCode = searchParams.get('roomCode');
@@ -38,9 +38,9 @@ export default function FamilyQuiz() {
     });
 
     // 2. Listen to Game State (Shared for all players)
-    const unsubGame = onSnapshot(doc(db, "games", `${roomCode}_quiz`), (doc) => {
-      if (doc.exists()) {
-        const data = doc.data();
+    const unsubGame = onSnapshot(doc(db, "games", `${roomCode}_quiz`), (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
         setGameState(data);
         if (data.status === 'ended') {
           confetti();
@@ -117,7 +117,7 @@ export default function FamilyQuiz() {
         <h1 className="text-4xl font-black text-slate-900 mb-2">Quiz Finished!</h1>
         <p className="text-slate-500 mb-8 font-medium">Great job everyone. Check the leaderboard for total scores!</p>
         <button 
-          onClick={() => router.push(`/leaderboard/${roomCode}`)}
+          onClick={() => router.push(`/leaderboard?roomCode=${roomCode}`)}
           className="w-full bg-indigo-600 text-white font-black py-5 rounded-2xl shadow-xl shadow-indigo-100"
         >
           See Leaderboard
@@ -162,5 +162,13 @@ export default function FamilyQuiz() {
         </button>
       )}
     </main>
+  );
+}
+
+export default function FamilyQuiz() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin w-10 h-10 text-indigo-600" /></div>}>
+      <FamilyQuizContent />
+    </Suspense>
   );
 }

@@ -1,15 +1,16 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import React, { useEffect, useState, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { db } from '@/lib/firebase';
 import { collection, query, where, onSnapshot, orderBy } from 'firebase/firestore';
 import { PlayerCard } from '@/components/PlayerCard';
-import { ArrowLeft, Trophy, Medal } from 'lucide-react';
+import { ArrowLeft, Trophy, Medal, Loader2 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
-export default function Leaderboard() {
-  const { roomCode } = useParams();
+function LeaderboardContent() {
+  const searchParams = useSearchParams();
+  const roomCode = searchParams.get('roomCode');
   const router = useRouter();
   const [players, setPlayers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -74,11 +75,19 @@ export default function Leaderboard() {
       </div>
 
       <button
-        onClick={() => router.push(`/lobby/${roomCode}`)}
+        onClick={() => router.push(`/lobby?roomCode=${roomCode}`)}
         className="w-full bg-indigo-600 text-white font-black py-5 rounded-2xl shadow-xl shadow-indigo-100 mt-8"
       >
         Back to Lobby
       </button>
     </main>
+  );
+}
+
+export default function Leaderboard() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin w-10 h-10 text-indigo-600" /></div>}>
+      <LeaderboardContent />
+    </Suspense>
   );
 }

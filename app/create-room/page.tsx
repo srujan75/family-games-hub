@@ -53,7 +53,7 @@ export default function CreateRoom() {
         joinedAt: serverTimestamp(),
       });
 
-      router.push(`/lobby/${roomCode}`);
+      router.push(`/lobby?roomCode=${roomCode}`);
     } catch (error) {
       console.error("Error creating room:", error);
       setLoading(false);

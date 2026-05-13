@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { db, auth } from '@/lib/firebase';
 import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
@@ -59,7 +59,7 @@ const GAMES = [
   }
 ];
 
-export default function GameSelection() {
+function GamesContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const roomCode = searchParams.get('roomCode');
@@ -104,7 +104,7 @@ export default function GameSelection() {
   return (
     <main className="min-h-screen bg-slate-50 p-6 flex flex-col max-w-md mx-auto">
       <div className="flex items-center justify-between mb-8">
-        <button onClick={() => router.push(`/lobby/${roomCode}`)} className="p-2 -ml-2 text-slate-500">
+        <button onClick={() => router.push(`/lobby?roomCode=${roomCode}`)} className="p-2 -ml-2 text-slate-500">
           <ArrowLeft className="w-6 h-6" />
         </button>
         <h1 className="text-2xl font-black text-slate-900">Select Game</h1>
@@ -137,5 +137,13 @@ export default function GameSelection() {
         </p>
       </div>
     </main>
+  );
+}
+
+export default function GamesSelection() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin w-10 h-10 text-indigo-600" /></div>}>
+      <GamesContent />
+    </Suspense>
   );
 }

@@ -1,15 +1,16 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import React, { useEffect, useState, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { db, auth } from '@/lib/firebase';
 import { doc, onSnapshot, collection, query, where, updateDoc } from 'firebase/firestore';
 import { PlayerCard } from '@/components/PlayerCard';
 import { MAX_PLAYERS, MIN_PLAYERS } from '@/lib/gameConstants';
 import { Loader2, Play, Users, Trophy } from 'lucide-react';
 
-export default function Lobby() {
-  const { roomCode } = useParams();
+function LobbyContent() {
+  const searchParams = useSearchParams();
+  const roomCode = searchParams.get('roomCode');
   const router = useRouter();
   const [trip, setTrip] = useState<any>(null);
   const [players, setPlayers] = useState<any[]>([]);
@@ -105,7 +106,7 @@ export default function Lobby() {
         )}
         
         <button
-          onClick={() => router.push(`/leaderboard/${roomCode}`)}
+          onClick={() => router.push(`/leaderboard?roomCode=${roomCode}`)}
           className="w-full bg-white text-slate-700 font-bold py-4 rounded-2xl border-2 border-slate-200 hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
         >
           <Trophy className="w-5 h-5 text-yellow-500" />
@@ -113,5 +114,13 @@ export default function Lobby() {
         </button>
       </div>
     </main>
+  );
+}
+
+export default function Lobby() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin w-10 h-10 text-indigo-600" /></div>}>
+      <LobbyContent />
+    </Suspense>
   );
 }

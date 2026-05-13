@@ -69,7 +69,7 @@ export default function JoinRoom() {
         joinedAt: serverTimestamp(),
       });
 
-      router.push(`/lobby/${code}`);
+      router.push(`/lobby?roomCode=${code}`);
     } catch (err) {
       console.error(err);
       setError("Something went wrong. Please try again.");
