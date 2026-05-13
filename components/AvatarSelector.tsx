@@ -12,6 +12,7 @@ export const AvatarSelector: React.FC<AvatarSelectorProps> = ({ selectedAvatar, 
       {AVATARS.map((avatar) => (
         <button
           key={avatar}
+          type="button"
           onClick={() => onSelect(avatar)}
           className={`text-3xl p-2 rounded-xl transition-all ${
             selectedAvatar === avatar 

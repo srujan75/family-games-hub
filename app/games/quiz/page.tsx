@@ -70,6 +70,11 @@ function GeneralKnowledgeQuizContent() {
     };
   }, [roomCode, isHost]);
 
+  useEffect(() => {
+    setHasSubmitted(false);
+    setSelectedAnswer(null);
+  }, [gameState?.currentRound]);
+
   const currentQuestion = GK_QUIZ_QUESTIONS[gameState?.currentRound || 0];
   const options = currentQuestion?.options || [];
 
