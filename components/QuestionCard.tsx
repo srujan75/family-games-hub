@@ -6,9 +6,11 @@ interface QuestionCardProps {
   onSelect: (answer: string) => void;
   selectedAnswer?: string;
   disabled?: boolean;
+  correctAnswer?: string;
+  showResults?: boolean;
 }
 
-export const QuestionCard: React.FC<QuestionCardProps> = ({ question, options, onSelect, selectedAnswer, disabled }) => {
+export const QuestionCard: React.FC<QuestionCardProps> = ({ question, options, onSelect, selectedAnswer, disabled, correctAnswer, showResults }) => {
   return (
     <div className="w-full space-y-6 animate-in slide-in-from-bottom-4 duration-500">
       <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
@@ -24,10 +26,16 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({ question, options, o
             disabled={disabled}
             onClick={() => onSelect(option)}
             className={`w-full p-5 rounded-2xl font-bold text-lg transition-all text-left flex items-center gap-4 ${
-              selectedAnswer === option 
-                ? 'bg-blue-600 text-white shadow-lg ring-4 ring-blue-100' 
-                : 'bg-white text-slate-700 hover:bg-slate-50 border-2 border-slate-100'
-            } ${disabled && selectedAnswer !== option ? 'opacity-50' : ''}`}
+              showResults 
+                ? option === correctAnswer 
+                  ? 'bg-emerald-500 text-white shadow-lg ring-4 ring-emerald-100'
+                  : selectedAnswer === option
+                    ? 'bg-red-500 text-white shadow-lg ring-4 ring-red-100'
+                    : 'bg-white text-slate-700 opacity-50 border-2 border-slate-100'
+                : selectedAnswer === option 
+                  ? 'bg-indigo-600 text-white shadow-lg ring-4 ring-indigo-100' 
+                  : 'bg-white text-slate-700 hover:bg-slate-50 border-2 border-slate-100'
+            } ${disabled && !showResults && selectedAnswer !== option ? 'opacity-50' : ''}`}
           >
             <div className={`w-8 h-8 flex items-center justify-center rounded-full text-sm font-black ${
               selectedAnswer === option ? 'bg-white/20' : 'bg-slate-100'

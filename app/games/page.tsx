@@ -19,8 +19,8 @@ import {
 const GAMES = [
   {
     id: GAME_TYPES.QUIZ,
-    title: 'Family Quiz',
-    description: '10 Questions about the family.',
+    title: 'General Knowledge',
+    description: 'Test your knowledge with trivia.',
     icon: HelpCircle,
     color: 'bg-blue-600',
     path: '/games/quiz'

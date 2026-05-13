@@ -4,14 +4,14 @@ import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { db, auth } from '@/lib/firebase';
 import { doc, onSnapshot, updateDoc, collection, query, where, getDocs, setDoc, serverTimestamp } from 'firebase/firestore';
-import { FAMILY_QUIZ_QUESTIONS } from '@/data/sampleQuestions';
+import { GK_QUIZ_QUESTIONS } from '@/data/sampleQuestions';
 import { QuestionCard } from '@/components/QuestionCard';
 import { Timer } from '@/components/Timer';
 import { addPoints } from '@/lib/scoring';
 import { Loader2, ArrowLeft, Trophy } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
-function FamilyQuizContent() {
+function GeneralKnowledgeQuizContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const roomCode = searchParams.get('roomCode');
@@ -70,8 +70,8 @@ function FamilyQuizContent() {
     };
   }, [roomCode, isHost]);
 
-  const currentQuestion = FAMILY_QUIZ_QUESTIONS[gameState?.currentRound || 0];
-  const options = players.map(p => p.name).slice(0, 4); // Use player names as options for family quiz
+  const currentQuestion = GK_QUIZ_QUESTIONS[gameState?.currentRound || 0];
+  const options = currentQuestion?.options || [];
 
   const handleSelect = async (answer: string) => {
     if (hasSubmitted || !gameState) return;
@@ -85,14 +85,19 @@ function FamilyQuizContent() {
       questionId: gameState.currentRound,
       playerId: auth.currentUser?.uid,
       selectedAnswer: answer,
+      isCorrect: answer === currentQuestion.correctAnswer,
       submittedAt: serverTimestamp()
     });
+
+    if (answer === currentQuestion.correctAnswer) {
+      await addPoints(roomCode as string, auth.currentUser?.uid as string, 10, "Correct Answer in GK Quiz");
+    }
   };
 
   const nextQuestion = async () => {
     if (!isHost || !gameState) return;
     
-    if (gameState.currentRound < FAMILY_QUIZ_QUESTIONS.length - 1) {
+    if (gameState.currentRound < GK_QUIZ_QUESTIONS.length - 1) {
       await updateDoc(doc(db, "games", `${roomCode}_quiz`), {
         currentRound: gameState.currentRound + 1
       });
@@ -144,6 +149,8 @@ function FamilyQuizContent() {
           onSelect={handleSelect}
           selectedAnswer={selectedAnswer || undefined}
           disabled={hasSubmitted}
+          correctAnswer={currentQuestion.correctAnswer}
+          showResults={hasSubmitted}
         />
         
         {hasSubmitted && !isHost && (
@@ -158,7 +165,7 @@ function FamilyQuizContent() {
           onClick={nextQuestion}
           className="w-full bg-emerald-600 text-white font-black py-5 rounded-2xl shadow-xl shadow-emerald-200 mt-8"
         >
-          {gameState.currentRound < FAMILY_QUIZ_QUESTIONS.length - 1 ? 'Next Question' : 'Finish Quiz'}
+          {gameState.currentRound < GK_QUIZ_QUESTIONS.length - 1 ? 'Next Question' : 'Finish Quiz'}
         </button>
       )}
     </main>
@@ -168,7 +175,7 @@ function FamilyQuizContent() {
 export default function FamilyQuiz() {
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin w-10 h-10 text-indigo-600" /></div>}>
-      <FamilyQuizContent />
+      <GeneralKnowledgeQuizContent />
     </Suspense>
   );
 }
